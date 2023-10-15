@@ -76,13 +76,18 @@ class MurderGameState:
             return False
 
     def player_return(self):
-        return -len(self.alive) / len(self.people)
+        return len(self.alive) / len(self.people)
 
     def returns(self):
         return -len(self.alive) / len(self.people), len(self.alive) / len(self.people)
 
     def current_player(self):
-        return self.player
+        if self.player == 0:
+            return 0
+        if self.player == 1:
+            return 1
+        if self.player == -1:
+            return -1
 
     def is_simultaneous_node(self):  # real signature unknown; restored from __doc__
         """ is_simultaneous_node(self: pyspiel.State) -> bool """
@@ -304,8 +309,9 @@ class KillerInterface:
 
     def get_actions(self: ObservationForKiller):
         people = self.people
-        all_victims = copy.copy(self.alive)
-        all_victims.remove(self.killer)
+        all_victims = copy.deepcopy(self.alive)
+        if self.killer in set(all_victims):
+            all_victims.remove(self.killer)
         points = self.points
         cost_list = self.cost_list
 
@@ -316,7 +322,6 @@ class KillerInterface:
             for i in all_victims:
                 if (points - cost_list[people.index(i)]) >= 0:
                     victims.append(i)
-
         return people, victims, points, cost_list
 
         # victim_index = np.random.choice(list(range(len(self.people))), 1, replace=False, p=killer_policy)

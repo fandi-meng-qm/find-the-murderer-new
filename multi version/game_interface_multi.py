@@ -38,8 +38,9 @@ class KillerInterface:
 
     def get_actions(self: ObservationForKiller):
         people = self.people
-        all_victims = copy.copy(self.alive)
-        all_victims.remove(self.killer)
+        all_victims = copy.deepcopy(self.alive)
+        if self.killer in set(all_victims):
+            all_victims.remove(self.killer)
         points = self.points
         cost_list = self.cost_list
 

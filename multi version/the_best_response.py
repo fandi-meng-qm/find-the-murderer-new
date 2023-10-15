@@ -174,7 +174,10 @@ class BestResponsePolicy(openspiel_policy.Policy):
     def value(self, state):
         """Returns the value of the specified state to the best-responder."""
         if state.is_terminal():
-            return state.player_return()
+            if state.current_player() == self._player_id:
+                return -state.player_return()
+            else:
+                return state.player_return()
         elif (state.current_player() == self._player_id or
               state.is_simultaneous_node()):
             action = self.best_response_action(

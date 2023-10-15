@@ -4,19 +4,22 @@ import itertools as it
 import numpy
 from matplotlib import pyplot as plt
 import numpy as np
+import logging
 import pyspiel
-# from open_spiel.python.algorithms import exploitability
+from open_spiel.python.algorithms import exploitability
 from open_spiel.python import policy as policy_lib
-import exploitability
-from game_core import MurderGameModel
-from policy import TabularPolicy
-
-game = MurderGameModel(1, 5, 5)
+# import exploitability
+from murder_game_core import MurderGame, MurderParams
+# from policy import TabularPolicy
 
 
-fixed_policy = copy.deepcopy(TabularPolicy(game))
+params = MurderParams()
+game = MurderGame(game_params=params)
 
-policy = TabularPolicy(game)
+
+fixed_policy = policy_lib.TabularPolicy(game)
+
+policy = policy_lib.TabularPolicy(game)
 
 # print(exploitability.nash_conv(game, policy))
 
