@@ -75,7 +75,7 @@ legal_mask[legal_mask > 0] = 1
 regrets = np.zeros_like(policy.action_probability_array)
 eval_steps = []
 eval_nash_conv = []
-for step in range(12):
+for step in range(129):
 
     # Compute regrets
     calc_cfr(initial_state, np.ones(len(init_states)))

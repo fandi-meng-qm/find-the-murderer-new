@@ -13,8 +13,8 @@ import enum
 
 class MurderParams:
     m_grid: int = 1
-    n_grid: int = 3
-    n_people: int = 3
+    n_grid: int = 5
+    n_people: int = 5
 
 
 _NUM_PLAYERS = 2
@@ -138,7 +138,7 @@ class MurderState(pyspiel.State):
         self.alive = list()
         self.dead = list()
         self.accused = list()
-        self.killer = Person()
+        self.killer = tuple()
         self.cost_list = list()
         self.points = math.ceil(sum(self.cost_list) / 2) + 3
         self.step = 0
@@ -163,7 +163,7 @@ class MurderState(pyspiel.State):
         if self.current_player() == MurderPlayer.KILLER:
             people, victims, points, cost_list = KillerInterface.get_actions(ObservationForKiller.from_game_state(self))
             actions = list(self.people.index(i) for i in victims)
-                # print(actions)
+            # print(actions)
             return actions
 
         if self.current_player() == MurderPlayer.DETECTIVE:
@@ -172,7 +172,7 @@ class MurderState(pyspiel.State):
             return actions
 
     def is_chance_node(self):
-        if self.step ==0:
+        if self.step == 0:
             return True
 
     def chance_outcomes(self):
@@ -194,7 +194,16 @@ class MurderState(pyspiel.State):
     def _apply_action(self, action: int) -> None:
         if self.is_chance_node():
             assert self.step == 0
-            self.init_state = action
+            initial_states = get_init_states(self.params)
+            state = initial_states[action]
+            self.people = state.people
+            self.alive = state.alive
+            self.dead = state.dead
+            self.accused = state.accused
+            self.killer = state.killer
+            self.cost_list = state.cost_list
+            self.points = math.ceil(sum(self.cost_list) / 2) + 3
+            self.step = 1
 
         else:
             if self.current_player() == MurderPlayer.KILLER:
@@ -217,11 +226,14 @@ class MurderState(pyspiel.State):
         return cp
 
     def is_terminal(self):
-        people, victims, points, cost_list = KillerInterface.get_actions(ObservationForKiller.from_game_state(self))
-        if victims is None or victims == []:
-            return True
-        elif self.killer in set(self.accused):
-            return True
+        if self.step > 0:
+            people, victims, points, cost_list = KillerInterface.get_actions(ObservationForKiller.from_game_state(self))
+            if victims is None or victims == []:
+                return True
+            elif self.killer in set(self.accused):
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -237,10 +249,16 @@ class MurderState(pyspiel.State):
             return [0, 0]
         else:
             score = self.score()
-            return [score, -score]
+            return [-score, score]
+
+    def __str__(self):
+        """String for debug purposes. No particular semantics are required."""
+        return f"m_grid={self.params.m_grid},n_grid={self.params.n_grid},n_people={self.params.n_people}," \
+               f"people={self.people},alive={self.alive},accused={self.accused},killer={self.killer}," \
+               f"cost_list={self.cost_list},points={self.points},step={self.step}"
 
 
-class MurderMysteryVariationsObserver:
+class MurderObserver:
     """Observer, conforming to the PyObserver interface (see observation.py)."""
 
     def __init__(self, iig, params: MurderParams):
@@ -254,16 +272,33 @@ class MurderMysteryVariationsObserver:
         # Each set describes the killer identity (N), the alive people (N), the dead people(N), the accused (N)
         # The one-hot coding for killer has N elements, all will be zero if the killer is not assigned yet
         self.params = params
-        size = 4 * params.n_people
-        shape = (size)
+        size = 7 * params.m_grid * params.n_grid
+        shape = (7,params.m_grid, params.n_grid)
         self.tensor = np.zeros(size, np.float32)
         self.dict = {"observation": np.reshape(self.tensor, shape)}
 
-    def _code_set(self, people: set, n: int) -> List[int]:
-        return [1 if x in people else 0 for x in range(n)]
+    def _code_set(self, people: list) -> np.array:
+        people_array = np.zeros((self.params.m_grid, self.params.n_grid))
+        for i in people:
+            people_array[i] = 1
+        return people_array
 
-    def _code_killer(self, killer: int, n: int) -> List[int]:
-        return [1 if x == killer else 0 for x in range(n)]
+    def _code_killer(self, killer: tuple) -> np.array:
+        killer_array = np.zeros((self.params.m_grid, self.params.n_grid))
+        killer_array[killer] = 1
+        return killer_array
+
+    def _code_cost_list(self, alive, people, cost_list: List[int]):
+        cost_array = np.zeros((self.params.m_grid, self.params.n_grid))
+        for i in alive:
+            cost_array[i] = cost_list[people.index(i)]
+        return cost_array
+
+    def _code_points(self, alive, points):
+        points_array = np.zeros((self.params.m_grid, self.params.n_grid))
+        for i in alive:
+            points_array[i] = points
+        return points_array
 
     def set_from(self, state: MurderState, player: int):
         """Updates `tensor` and `dict` to reflect `state` from PoV of `player`."""
@@ -272,14 +307,19 @@ class MurderMysteryVariationsObserver:
         obs = self.dict["observation"]
         obs.fill(0)
         if player == MurderPlayer.DETECTIVE:
-            killer_list = self._code_killer(-1, self.params.n_people)
+            killer_array = np.zeros((self.params.m_grid, self.params.n_grid))
+            cost_array = np.zeros((self.params.m_grid, self.params.n_grid))
+            points_array = np.zeros((self.params.m_grid, self.params.n_grid))
         else:
-            killer_list = self._code_killer(state.killer, self.params.n_people)
-        alive_list = self._code_set(state.alive, self.params.n_people)
-        dead_list = self._code_set(state.alive, self.params.n_people)
-        accused_list = self._code_set(state.alive, self.params.n_people)
-        all_list = [*killer_list, *alive_list, *dead_list, *accused_list]
-        for i, x in enumerate(all_list):
+            killer_array = self._code_killer(state.killer)
+            cost_array = self._code_cost_list(state.alive, state.people, state.cost_list)
+            points_array = self._code_points(state.alive, state.points)
+        people_array = self._code_set(state.people)
+        alive_array = self._code_set(state.alive)
+        dead_array = self._code_set(state.dead)
+        accused_array = self._code_set(state.accused)
+        all_array = [people_array, alive_array, dead_array, accused_array, *killer_array, *cost_array, *points_array]
+        for i, x in enumerate(all_array):
             obs[i] = x
         # print("All list: ", all_list)
         # print("obs: ", obs)
@@ -287,9 +327,10 @@ class MurderMysteryVariationsObserver:
     def string_from(self, state: MurderState, player: int):
         """Observation of `state` from the PoV of `player`, as a string."""
         if player == MurderPlayer.KILLER:
-            return f"k_{state.killer}-a_{state.alive}"
+            return f"people{state.people},alive{state.alive},accused{state.accused},killer{state.killer}," \
+                   f"points{state.points},cost_list{state.cost_list}"
         else:
-            return f"a_{state.alive}_d{state.dead}_s{state.accused}"
+            return f"people{state.people},alive{state.alive},dead{state.dead},accused{state.accused}"
 
 
 @dataclass
@@ -352,4 +393,3 @@ class DetectiveInterface:
         suspects = list(set(self.alive).difference(set(self.accused)))
 
         return suspects
-
