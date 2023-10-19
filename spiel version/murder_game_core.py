@@ -12,9 +12,10 @@ import enum
 
 
 class MurderParams:
-    m_grid: int = 1
-    n_grid: int = 5
-    n_people: int = 5
+    def __init__(self, m_grid, n_grid, n_people):
+        self.m_grid = m_grid
+        self.n_grid = n_grid
+        self.n_people =n_people
 
 
 _NUM_PLAYERS = 2
@@ -116,7 +117,7 @@ def get_init_states(params) -> list:
             # state.params= params
             # print(state.params)
             state.people = i
-            state.alive = i
+            state.alive = copy.deepcopy(i)
             state.killer = j
             state.dead = []
             state.accused = []
@@ -273,7 +274,7 @@ class MurderObserver:
         # The one-hot coding for killer has N elements, all will be zero if the killer is not assigned yet
         self.params = params
         size = 7 * params.m_grid * params.n_grid
-        shape = (7,params.m_grid, params.n_grid)
+        shape = (7, params.m_grid, params.n_grid)
         self.tensor = np.zeros(size, np.float32)
         self.dict = {"observation": np.reshape(self.tensor, shape)}
 
@@ -330,7 +331,7 @@ class MurderObserver:
             return f"people{state.people},alive{state.alive},accused{state.accused},killer{state.killer}," \
                    f"points{state.points},cost_list{state.cost_list}"
         else:
-            return f"people{state.people},alive{state.alive},dead{state.dead},accused{state.accused}"
+            return f"alive{state.alive},dead{state.dead},accused{state.accused}"
 
 
 @dataclass

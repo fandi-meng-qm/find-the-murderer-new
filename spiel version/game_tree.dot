@@ -1,0 +1,254 @@
+digraph GameTree {
+    "Root" -> "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 0),points6,cost_list[0, 2, 3]";
+    "Root" -> "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 1),points6,cost_list[3, 0, 3]";
+    "Root" -> "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 2),points6,cost_list[3, 2, 0]";
+    "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 2),points6,cost_list[3, 2, 0]" -> "action0->observation
+alive[(0, 1), (0, 2)]
+dead[(0, 0)]
+accused[]";
+    "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 2),points6,cost_list[3, 2, 0]" -> "action1->observation
+alive[(0, 0), (0, 2)]
+dead[(0, 1)]
+accused[]";
+    "action1->observation
+alive[(0, 0), (0, 2)]
+dead[(0, 1)]
+accused[]" -> "action2->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 2)]
+accused[(0, 2)]
+killer(0, 2),points4,cost_list[3, 2, 0]";
+    "action1->observation
+alive[(0, 0), (0, 2)]
+dead[(0, 1)]
+accused[]" -> "action0->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 2)]
+accused[(0, 0)]
+killer(0, 2),points4,cost_list[3, 2, 0]";
+    "action0->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 2)]
+accused[(0, 0)]
+killer(0, 2),points4,cost_list[3, 2, 0]" -> "action0->observation
+alive[(0, 2)]
+dead[(0, 1), (0, 0)]
+accused[(0, 0)]";
+    "action0->observation
+alive[(0, 2)]
+dead[(0, 1), (0, 0)]
+accused[(0, 0)]" -> "[-0.3333333333333333, 0.3333333333333333]";
+    "action2->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 2)]
+accused[(0, 2)]
+killer(0, 2),points4,cost_list[3, 2, 0]" -> "[-0.6666666666666666, 0.6666666666666666]";
+    "action0->observation
+alive[(0, 1), (0, 2)]
+dead[(0, 0)]
+accused[]" -> "action1->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 1), (0, 2)]
+accused[(0, 1)]
+killer(0, 2),points3,cost_list[3, 2, 0]";
+    "action0->observation
+alive[(0, 1), (0, 2)]
+dead[(0, 0)]
+accused[]" -> "action2->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 1), (0, 2)]
+accused[(0, 2)]
+killer(0, 2),points3,cost_list[3, 2, 0]";
+    "action2->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 1), (0, 2)]
+accused[(0, 2)]
+killer(0, 2),points3,cost_list[3, 2, 0]" -> "[-0.6666666666666666, 0.6666666666666666]";
+    "action1->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 1), (0, 2)]
+accused[(0, 1)]
+killer(0, 2),points3,cost_list[3, 2, 0]" -> "action1->observation
+alive[(0, 2)]
+dead[(0, 0), (0, 1)]
+accused[(0, 1)]";
+    "action1->observation
+alive[(0, 2)]
+dead[(0, 0), (0, 1)]
+accused[(0, 1)]" -> "[-0.3333333333333333, 0.3333333333333333]";
+    "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 1),points6,cost_list[3, 0, 3]" -> "action0->observation
+alive[(0, 1), (0, 2)]
+dead[(0, 0)]
+accused[]";
+    "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 1),points6,cost_list[3, 0, 3]" -> "action2->observation
+alive[(0, 0), (0, 1)]
+dead[(0, 2)]
+accused[]";
+    "action2->observation
+alive[(0, 0), (0, 1)]
+dead[(0, 2)]
+accused[]" -> "action1->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1)]
+accused[(0, 1)]
+killer(0, 1),points3,cost_list[3, 0, 3]";
+    "action2->observation
+alive[(0, 0), (0, 1)]
+dead[(0, 2)]
+accused[]" -> "action0->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1)]
+accused[(0, 0)]
+killer(0, 1),points3,cost_list[3, 0, 3]";
+    "action0->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1)]
+accused[(0, 0)]
+killer(0, 1),points3,cost_list[3, 0, 3]" -> "action0->observation
+alive[(0, 1)]
+dead[(0, 2), (0, 0)]
+accused[(0, 0)]";
+    "action0->observation
+alive[(0, 1)]
+dead[(0, 2), (0, 0)]
+accused[(0, 0)]" -> "[-0.3333333333333333, 0.3333333333333333]";
+    "action1->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1)]
+accused[(0, 1)]
+killer(0, 1),points3,cost_list[3, 0, 3]" -> "[-0.6666666666666666, 0.6666666666666666]";
+    "action0->observation
+alive[(0, 1), (0, 2)]
+dead[(0, 0)]
+accused[]" -> "action1->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 1), (0, 2)]
+accused[(0, 1)]
+killer(0, 1),points3,cost_list[3, 0, 3]";
+    "action0->observation
+alive[(0, 1), (0, 2)]
+dead[(0, 0)]
+accused[]" -> "action2->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 1), (0, 2)]
+accused[(0, 2)]
+killer(0, 1),points3,cost_list[3, 0, 3]";
+    "action2->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 1), (0, 2)]
+accused[(0, 2)]
+killer(0, 1),points3,cost_list[3, 0, 3]" -> "action2->observation
+alive[(0, 1)]
+dead[(0, 0), (0, 2)]
+accused[(0, 2)]";
+    "action2->observation
+alive[(0, 1)]
+dead[(0, 0), (0, 2)]
+accused[(0, 2)]" -> "[-0.3333333333333333, 0.3333333333333333]";
+    "action1->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 1), (0, 2)]
+accused[(0, 1)]
+killer(0, 1),points3,cost_list[3, 0, 3]" -> "[-0.6666666666666666, 0.6666666666666666]";
+    "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 0),points6,cost_list[0, 2, 3]" -> "action1->observation
+alive[(0, 0), (0, 2)]
+dead[(0, 1)]
+accused[]";
+    "people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1), (0, 2)]
+accused[]
+killer(0, 0),points6,cost_list[0, 2, 3]" -> "action2->observation
+alive[(0, 0), (0, 1)]
+dead[(0, 2)]
+accused[]";
+    "action2->observation
+alive[(0, 0), (0, 1)]
+dead[(0, 2)]
+accused[]" -> "action1->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1)]
+accused[(0, 1)]
+killer(0, 0),points3,cost_list[0, 2, 3]";
+    "action2->observation
+alive[(0, 0), (0, 1)]
+dead[(0, 2)]
+accused[]" -> "action0->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1)]
+accused[(0, 0)]
+killer(0, 0),points3,cost_list[0, 2, 3]";
+    "action0->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1)]
+accused[(0, 0)]
+killer(0, 0),points3,cost_list[0, 2, 3]" -> "[-0.6666666666666666, 0.6666666666666666]";
+    "action1->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 1)]
+accused[(0, 1)]
+killer(0, 0),points3,cost_list[0, 2, 3]" -> "action1->observation
+alive[(0, 0)]
+dead[(0, 2), (0, 1)]
+accused[(0, 1)]";
+    "action1->observation
+alive[(0, 0)]
+dead[(0, 2), (0, 1)]
+accused[(0, 1)]" -> "[-0.3333333333333333, 0.3333333333333333]";
+    "action1->observation
+alive[(0, 0), (0, 2)]
+dead[(0, 1)]
+accused[]" -> "action2->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 2)]
+accused[(0, 2)]
+killer(0, 0),points4,cost_list[0, 2, 3]";
+    "action1->observation
+alive[(0, 0), (0, 2)]
+dead[(0, 1)]
+accused[]" -> "action0->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 2)]
+accused[(0, 0)]
+killer(0, 0),points4,cost_list[0, 2, 3]";
+    "action0->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 2)]
+accused[(0, 0)]
+killer(0, 0),points4,cost_list[0, 2, 3]" -> "[-0.6666666666666666, 0.6666666666666666]";
+    "action2->observation
+people[(0, 0), (0, 1), (0, 2)]
+alive[(0, 0), (0, 2)]
+accused[(0, 2)]
+killer(0, 0),points4,cost_list[0, 2, 3]" -> "action2->observation
+alive[(0, 0)]
+dead[(0, 1), (0, 2)]
+accused[(0, 2)]";
+    "action2->observation
+alive[(0, 0)]
+dead[(0, 1), (0, 2)]
+accused[(0, 2)]" -> "[-0.3333333333333333, 0.3333333333333333]";
+}

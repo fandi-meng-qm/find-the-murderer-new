@@ -10,16 +10,17 @@ from open_spiel.python.algorithms import exploitability
 from open_spiel.python import policy as policy_lib
 # import exploitability
 from murder_game_core import MurderGame, MurderParams
+
 # from policy import TabularPolicy
 
 
-params = MurderParams()
+params = MurderParams(1, 5, 5)
 game = MurderGame(game_params=params)
-
 
 fixed_policy = policy_lib.TabularPolicy(game)
 
 policy = policy_lib.TabularPolicy(game)
+
 
 # print(exploitability.nash_conv(game, policy))
 
@@ -28,6 +29,7 @@ def print_policy(policy):
                             policy.action_probability_array):
         print(f'{state:6}   p={probs}')
         # print(probs)
+
 
 # print_policy(fixed_policy)
 print_policy(policy)
@@ -77,25 +79,25 @@ regrets = np.zeros_like(policy.action_probability_array)
 eval_steps = []
 eval_nash_conv = []
 for step in range(129):
-  # Compute regrets
-  calc_cfr(initial_state, np.ones(1 + game.num_players()))
+    # Compute regrets
+    calc_cfr(initial_state, np.ones(1 + game.num_players()))
 
-  # Find the new regret-matching policy
-  floored_regrets = np.maximum(regrets, 1e-16)* legal_mask
-  sum_floored_regrets = np.sum(floored_regrets, axis=1, keepdims=True)
-  curr_policy = floored_regrets / sum_floored_regrets
+    # Find the new regret-matching policy
+    floored_regrets = np.maximum(regrets, 1e-16) * legal_mask
+    sum_floored_regrets = np.sum(floored_regrets, axis=1, keepdims=True)
+    curr_policy = floored_regrets / sum_floored_regrets
 
-  # Update the average policy
-  lr = 1 / (1 + step)
-  policy.action_probability_array *= (1 - lr)
-  policy.action_probability_array += curr_policy * lr
+    # Update the average policy
+    lr = 1 / (1 + step)
+    policy.action_probability_array *= (1 - lr)
+    policy.action_probability_array += curr_policy * lr
 
-  # Evaluate the average policy
-  if step & (step-1) == 0:
-    nc = exploitability.nash_conv(game, policy)
-    eval_steps.append(step)
-    eval_nash_conv.append(nc)
-    print(f'Nash conv after step {step} is {nc}')
+    # Evaluate the average policy
+    if step & (step - 1) == 0:
+        nc = exploitability.nash_conv(game, policy)
+        eval_steps.append(step)
+        eval_nash_conv.append(nc)
+        print(f'Nash conv after step {step} is {nc}')
 
 fig, ax = plt.subplots()
 ax.set_title("NashConv by CFR Iteration")
@@ -104,13 +106,13 @@ fig.show()
 
 print_policy(policy)
 
+
 def sample(actions_and_probs):
     actions, probs = zip(*actions_and_probs)
     return np.random.choice(actions, p=probs)
 
 
 def policy_as_list(policy, state):
-
     return list(enumerate(policy.policy_for_key(state.information_state_string())))
 
 
@@ -124,7 +126,7 @@ def evaluate(state, rl_policy, player):
     else:
         ap = policy_as_list(fixed_policy, state)
 
-    return sum(p * evaluate(state.child(a), rl_policy, player) for a, p in ap if p !=0.0)
+    return sum(p * evaluate(state.child(a), rl_policy, player) for a, p in ap if p != 0.0)
 
 
 def eval(rl_policy):
@@ -135,8 +137,6 @@ def eval(rl_policy):
     print(f"p1: {p1}")
     print()
     return (p0 + p1)
-
-
 
 
 eval(policy)
