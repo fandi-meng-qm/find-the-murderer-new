@@ -13,9 +13,13 @@ def test_advantage(policy1,policy2):
     result = total_advantage(game, policy1, policy2)
     return result
 
+
+# -0.5560078827880276,detective's advantage with policy: 0.5902574056255119
+# test_advantage(uniform_random_policy,uniform_random_policy)
 test_advantage(cfr_policy,uniform_random_policy)
 test_advantage(reinforce_policy,uniform_random_policy)
 test_advantage(greedy_policy,uniform_random_policy)
+# test_advantage(greedy_policy,cfr_policy)
 
 # if __name__ == '__main__':
 #     params = MurderParams(1,5,5)

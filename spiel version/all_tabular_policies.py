@@ -12,6 +12,7 @@ uniform_random_policy = policy_lib.TabularPolicy(game)
 
 with open("cfr_policy.pkl", "rb") as file:
     cfr_policy_array = pickle.load(file)
+
 policy = policy_lib.TabularPolicy(game)
 policy.action_probability_array = cfr_policy_array
 cfr_policy = policy

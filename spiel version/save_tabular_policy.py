@@ -9,8 +9,9 @@ def save_cfr_policy():
     game = MurderGame(game_params=params)
     cfr_policy,eval_steps,eval_nash_conv = get_cfr_policy(game, 129)
     cfr_policy=cfr_policy.action_probability_array
-    with open("cfr_policy.pkl", "wb") as file:
-        pickle.dump(cfr_policy, file)
+    print(cfr_policy)
+    # with open("cfr_policy.pkl", "wb") as file:
+    #     pickle.dump(cfr_policy, file)
 
 
 

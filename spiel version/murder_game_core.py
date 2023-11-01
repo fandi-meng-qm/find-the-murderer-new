@@ -113,7 +113,7 @@ def get_init_states(params) -> list:
         for j in i:
             cost_list = gen_cost_list(i, j)
             game = MurderGame(game_params=params)
-            state = MurderState(game)
+            state = game.new_initial_state()
             # state.params= params
             # print(state.params)
             state.people = i
@@ -251,6 +251,8 @@ class MurderState(pyspiel.State):
         else:
             score = self.score()
             return [-score, score]
+
+
 
     def __str__(self):
         """String for debug purposes. No particular semantics are required."""
