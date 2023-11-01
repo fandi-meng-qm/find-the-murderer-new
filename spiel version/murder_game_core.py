@@ -208,10 +208,7 @@ class MurderState(pyspiel.State):
 
         else:
             if self.current_player() == MurderPlayer.KILLER:
-                if action is None:
-                    pass
-                else:
-                    self._kill_action(self.people[action])
+                self._kill_action(self.people[action])
             else:
                 self._accuse_action(self.people[action])
             self.step += 1

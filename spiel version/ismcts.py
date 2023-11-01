@@ -16,12 +16,15 @@
 See Cowling, Powley, and Whitehouse 2011.
 https://ieeexplore.ieee.org/document/6203567
 """
+import math
 import random
 import copy
 import enum
 import numpy as np
 import pyspiel
-from murder_game_core import get_init_states, MurderParams
+from pyspiel import PlayerId
+
+from murder_game_core import get_init_states, MurderParams,gen_cost_list
 
 UNLIMITED_NUM_WORLD_SAMPLES = -1
 UNEXPANDED_VISIT_COUNT = -1
@@ -72,7 +75,7 @@ class ISMCTSBot(pyspiel.Bot):
                max_simulations,
                max_world_samples=UNLIMITED_NUM_WORLD_SAMPLES,
                random_state=None,
-               final_policy_type=ISMCTSFinalPolicyType.MAX_VISIT_COUNT,
+               final_policy_type=ISMCTSFinalPolicyType.MAX_VALUE,
                use_observation_string=False,
                allow_inconsistent_action_sets=False,
                child_selection_policy=ChildSelectionPolicy.PUCT):
@@ -105,6 +108,7 @@ class ISMCTSBot(pyspiel.Bot):
     if self._use_observation_string:
       return state.current_player(), state.observation_string()
     else:
+      # print(state.information_state_string())
       return state.current_player(), state.information_state_string()
 
   def run_search(self, state):
@@ -128,7 +132,7 @@ class ISMCTSBot(pyspiel.Bot):
       # how to sample a pyspiel.state from another pyspiel.state?
       sampled_root_state = self.sample_root_state(state)
       # assert root_infostate_key == self.get_state_key(sampled_root_state)
-      # assert sampled_root_state
+      assert sampled_root_state
       self.run_simulation(sampled_root_state)
 
     if self._allow_inconsistent_action_sets:  # when this happens?
@@ -210,21 +214,35 @@ class ISMCTSBot(pyspiel.Bot):
       return self._resampler_cb(state, state.current_player())
     else:
       if state.current_player() ==0:
-        return state
+        resample_state = state.clone()
+        return resample_state
       else:
-        params = state.params
+        resample_state = state.clone()
+        alive= resample_state.alive
+        dead=resample_state.dead
+        resample_state.killer=random.choice(alive)
+        resample_state.cost_list = gen_cost_list(resample_state.people,resample_state.killer)
+        costs = 0
+        if dead !=[]:
+          for i in dead:
+            costs += resample_state.cost_list[resample_state.people.index(i)]
 
-        init_states = get_init_states(params)
-        possible_states = []
-        for s in init_states:
-          if state.accused is not []:
-            for a in state.accused:
-              s._accused_action(a)
-          if state.dead is not []:
-            for a in state.dead:
-              s._kill_action(a)
-          possible_states.append(s)
-        return random.choice(possible_states)
+        resample_state.points = math.ceil(sum(resample_state.cost_list) / 2) + 3 - costs
+        # params = state.params
+        #
+        # init_states = get_init_states(params)
+        # possible_states = []
+        # for s in init_states:
+        #   if state.accused is not []:
+        #     for a in state.accused:
+        #       s._accused_action(a)
+        #   if state.dead is not []:
+        #     for a in state.dead:
+        #       s._kill_action(a)
+        #   possible_states.append(s)
+        # print(state)
+        # print(resample_state)
+        return resample_state
 
   def create_new_node(self, state):
     infostate_key = self.get_state_key(state)
