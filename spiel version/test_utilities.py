@@ -34,6 +34,7 @@ eval_nash_conv = []
 def get_cfr_policy(game: MurderGame, n: int):
     cfr_solver = external_mccfr.ExternalSamplingSolver(
         game, external_mccfr.AverageType.SIMPLE)
+    # cfr_solver = cfr.CFRSolver(game)
     # cfr_solver.evaluate_and_update_policy()
     # average_policy = cfr_solver.average_policy()
     # average_policy = None
