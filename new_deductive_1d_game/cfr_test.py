@@ -1,9 +1,8 @@
 import random
 
-from open_spiel.python.algorithms import exploitability, cfr
+from open_spiel.python.algorithms import cfr
 import itertools as it
-from game_core import MurderGame, MurderParams
-from open_spiel.python import policy as policy_lib
+from new_deductive_1d_game.version1.game_core import MurderGame, MurderParams
 from matplotlib import pyplot as plt
 from open_spiel.python.algorithms import external_sampling_mccfr as external_mccfr
 

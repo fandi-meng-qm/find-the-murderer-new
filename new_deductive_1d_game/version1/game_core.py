@@ -74,7 +74,7 @@ class MurderState(pyspiel.State):
         self.step = 0
         self.information_state = [1] * self.params.m_grid
 
-    def current_player(self):
+    def current_player(self) -> pyspiel.PlayerId or int:
         """Returns id of the next player to move, or TERMINAL if game is over."""
         if self.is_terminal():
             return pyspiel.PlayerId.TERMINAL
@@ -97,11 +97,11 @@ class MurderState(pyspiel.State):
         # print(actions)
         return actions
 
-    def is_chance_node(self):
+    def is_chance_node(self) -> bool:
         if self.step == 0:
             return True
 
-    def chance_outcomes(self):
+    def chance_outcomes(self) -> List[tuple]:
         assert self.step == 0
         chance_outcomes = [(i, 1 / self.params.m_grid) for i in range(self.params.m_grid)]
         return chance_outcomes
@@ -130,7 +130,7 @@ class MurderState(pyspiel.State):
         cp = super().clone()
         return cp
 
-    def is_terminal(self):
+    def is_terminal(self) -> bool:
         if self.step > 0:
             if sum(self.information_state) == 1:
                 return True
@@ -142,9 +142,11 @@ class MurderState(pyspiel.State):
     def returns(self):
         """Total reward for each player over the course of the game so far."""
         if not self.is_terminal():
-            return -1
+            return 0
         else:
-            return [-self.step]
+            # print(1-(self.step-1)/(self.params.m_grid-1))
+            return [1-(self.step-1)/(self.params.m_grid-2)]
+            # return [-self.step]
 
     def __str__(self):
         """String for debug purposes. No particular semantics are required."""

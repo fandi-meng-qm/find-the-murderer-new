@@ -22,7 +22,6 @@ import numpy as np
 import pyspiel
 import random
 from matplotlib import pyplot as plt
-from game_core import MurderParams, MurderGame
 
 UNLIMITED_NUM_WORLD_SAMPLES = 100
 UNEXPANDED_VISIT_COUNT = -1
@@ -116,6 +115,7 @@ class ISMCTSBot(pyspiel.Bot):
     # ).information == pyspiel.GameType.Information.IMPERFECT_INFORMATION
 
     legal_actions = state.legal_actions()
+
     if len(legal_actions) == 1:
       return [(legal_actions[0], 1.0)]
 
@@ -190,6 +190,7 @@ class ISMCTSBot(pyspiel.Bot):
       for action in legal_actions:
         if action not in node.child_info:
           policy.append((action, 0.0))
+    # print(policy)
     return policy
 
   def sample_root_state(self, state):
@@ -308,7 +309,6 @@ class ISMCTSBot(pyspiel.Bot):
     legal_actions = state.legal_actions()
     cur_player = state.current_player()
     node = self.lookup_or_create_node(state)
-
     assert node
     if node.total_visits == UNEXPANDED_VISIT_COUNT:
       node.total_visits = 0
@@ -331,15 +331,15 @@ class ISMCTSBot(pyspiel.Bot):
       node.child_info[chosen_action].visits += 1
 
 
-      if state.step  == 1:
-        action_list.append(chosen_action)
-      prob_list=[0]*len(action_list)
+      # if state.step  == 1:
+      #   action_list.append(chosen_action)
+      # prob_list=[0]*len(action_list)
+      #
+      # if state.step  == 1 and len(action_list) ==999:
+      #   for i in range(len(action_list)):
+      #     prob_list[i] = action_list[0:i+1].count(state.params.m_grid/2-1)/len(action_list[0:i+1])
+      #   show_policy_converge(prob_list)
 
-      if state.step  == 1 and len(action_list) ==199:
-        for i in range(len(action_list)):
-          prob_list[i] = action_list[0:i+1].count(state.params.m_grid/2-1)/len(action_list[0:i+1])
-        show_policy_converge(prob_list)
-        first_time = False
 
 
       state.apply_action(chosen_action)
