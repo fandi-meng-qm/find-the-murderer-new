@@ -48,9 +48,9 @@ def test_games(n, agent):
     print(f"The average number of steps for {n} times of gameplay with {agent} is {average_reward}.")
 
 if __name__ == "__main__":
-    # test_games(100, RandomAgent)
-    # test_games(100, BetterRandomAgent)
-    test_games(1000, ISMCTSAgent)
-    # test_games(100,OptimalAgent)
+    # test_games(1000, RandomAgent)
+    # test_games(1000, BetterRandomAgent)
+    # test_games(1000, ISMCTSAgent)
+    test_games(1000,OptimalAgent)
 
 # 6.422,9.803,6.415,5.844,5.231,4.919,4.131,3.776,3.76

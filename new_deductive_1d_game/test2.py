@@ -15,7 +15,7 @@ print(len(actions))
 
 my_set = set(range(18))
 
-# 生成所有可能的三元素组合
+
 combinations = itertools.combinations(my_set, 3)
 list=[]
 for combo in combinations:
