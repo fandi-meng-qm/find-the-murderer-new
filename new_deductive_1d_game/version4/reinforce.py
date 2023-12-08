@@ -1,125 +1,65 @@
-import itertools as it
-
-import torch
-from matplotlib import pyplot as plt
+import random
+from typing import List, Tuple
+from evolutionary import evaluate_es, evaluate_policy
 import numpy as np
-import pickle
+from tabular_policy import InfoSetTabularPolicy
 from game_core import MurderGame, MurderParams
-from open_spiel.python.algorithms import exploitability
-from open_spiel.python import policy as policy_lib
-import gym
-import torch
-from open_spiel.python import rl_environment
-import torch.nn.functional as F
-import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 
-class PolicyNet(torch.nn.Module):
-    def __init__(self, state_dim, hidden_dim, action_dim):
-        super(PolicyNet, self).__init__()
-        self.fc1 = torch.nn.Linear(state_dim, hidden_dim)
-        self.fc2 = torch.nn.Linear(hidden_dim, action_dim)
+def softmax(x):
+    x = np.exp(x - np.max(x, axis=-1, keepdims=True))
+    return x / np.sum(x, axis=-1, keepdims=True)
 
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        return F.softmax(self.fc2(x), dim=1)
+def generate_trajectory(game,policy):
+    trajectory = []
+    state = game.new_initial_state()
+    if state.step == 0:
+        action = random.choice(state.legal_actions())
+        state.apply_action(action)
+        while not state.is_terminal():
+            # action = random.choices(state.legal_actions(), weights=softmax(policy[tuple(state.information_state)]), k=1)[0]
+            action = np.argmax(policy[tuple(state.information_state)])
+            trajectory.append((tuple(state.information_state), action))
+            state.apply_action(action)
 
-
-class REINFORCE:
-    def __init__(self, state_dim, hidden_dim, action_dim, learning_rate, gamma,
-                 device):
-        self.policy_net = PolicyNet(state_dim, hidden_dim,
-                                    action_dim).to(device)
-        self.optimizer = torch.optim.Adam(self.policy_net.parameters(),
-                                          lr=learning_rate)  # Using the Adam optimizer
-        self.gamma = gamma  # discount factor
-        self.device = device
-
-    def take_action(self, state):  # Random sampling based on action probability distribution
-        state = torch.tensor([state], dtype=torch.float).to(self.device)
-        probs = self.policy_net(state)
-        action_dist = torch.distributions.Categorical(probs)
-        action = action_dist.sample()
-        return action.item()
-
-    def update(self, transition_dict):
-        reward_list = transition_dict['rewards']
-        state_list = transition_dict['states']
-        action_list = transition_dict['actions']
-
-        G = 0
-        self.optimizer.zero_grad()
-        for i in reversed(range(len(reward_list))):  # Starting from the last step
-            reward = reward_list[i]
-            state = torch.tensor([state_list[i]],
-                                 dtype=torch.float).to(self.device)
-            action = torch.tensor([action_list[i]]).view(-1, 1).to(self.device)
-            log_prob = torch.log(self.policy_net(state).gather(1, action))
-            G = self.gamma * G + reward
-            loss = -log_prob * G
-            loss.backward()
-        self.optimizer.step()
+    return trajectory, state.returns()[0]
 
 
-learning_rate = 1e-3
-num_episodes = 10000
-hidden_dim = 128
-gamma = 0.98
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device(
-    "cpu")
 
-params = MurderParams(4, 1, 1)
-game = MurderGame(game_params=params)
-env = rl_environment.Environment(game, include_full_state=True)
-state_dim = env._game.information_state_tensor_size()
-action_dim = env.action_spec()["num_actions"]
-agent = REINFORCE(state_dim, hidden_dim, action_dim, learning_rate, gamma,
-                      device)
 
-def test(agent) -> float:
+
+
+def reinforce(n_iterations, game, lr):
+    policy = InfoSetTabularPolicy(game).uniform_random()
     return_list = []
-    for i in range(10):
-        with tqdm(total=int(num_episodes / 10), desc='Iteration %d' % i) as pbar:
-            for i_episode in range(int(num_episodes / 10)):
-                episode_return = 0
-                transition_dict = {
-                    'states': [],
-                    'actions': [],
-                    'next_states': [],
-                    'rewards': [],
-                    'dones': []
-                }
-                time_step = env.reset()
+    for i in range(n_iterations):
+        trajectory, reward = generate_trajectory(game,policy)
+        for s, a in trajectory:
+            logits = np.log(policy[s])
+            logits[a] += lr * (10+reward)
+            policy [s] = softmax(logits)
 
-                while not time_step.last():
-                    action = agent.take_action(time_step.observations['info_state'][0])
-                    transition_dict['states'].append(time_step.observations['info_state'][0])
-                    time_step = env.step([action])
-                    transition_dict['actions'].append(action)
-                    transition_dict['next_states'].append(time_step.observations['info_state'][0])
-                    transition_dict['rewards'].append(time_step.rewards[0])
-                    transition_dict['dones'].append(time_step.last())
-                    episode_return += time_step.rewards[0]
-                return_list.append(episode_return)
-                agent.update(transition_dict)
-                if (i_episode + 1) % 100 == 0:
-                    pbar.set_postfix({
-                        'episode':
-                            '%d' % (num_episodes / 10 * i + i_episode + 1),
-                        'return':
-                            '%.3f' % np.mean(return_list[-100:])
-                    })
-                pbar.update(1)
-    episodes_list = list(range(len(return_list)))
-    plt.plot(episodes_list, return_list)
-    plt.xlabel('Episodes')
-    plt.ylabel('Returns')
-    plt.title('REINFORCE on 1-D Simple Game')
-    plt.show()
+        current_fitness = evaluate_policy(policy, game)
+        return_list.append(current_fitness)
+    # episodes_list = list(range(len(return_list)))
+    # plt.plot(episodes_list, return_list)
+    # plt.xlabel('iterations')
+    # plt.ylabel('Average returns of policy')
+    # plt.title('REINFORCE on 1-D Simple Game')
+    # plt.show()
+    # print(np.argmax(policy[(1,1,1,1)]))
+    return policy, return_list
 
 
-if __name__ == "__main__":
-    test(agent)
 
 
+
+
+
+if __name__ == '__main__':
+    params = MurderParams(4, 1, 1)
+    game = MurderGame(game_params=params)
+    reinforce(1000, game, 0.001)
+    print(game.new_initial_state().init_actions)
+
+#     3,5,6,9,10,12

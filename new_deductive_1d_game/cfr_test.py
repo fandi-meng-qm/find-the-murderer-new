@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from open_spiel.python.algorithms import external_sampling_mccfr as external_mccfr
 
 
-params = MurderParams(8, 1, 1)
+params = MurderParams(4, 1, 1)
 game = MurderGame(game_params=params)
 
 

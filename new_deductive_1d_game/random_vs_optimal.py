@@ -40,7 +40,7 @@ size_list=[]
 random_list=[]
 optimal_list=[]
 
-for i in range(2,1025):
+for i in range(2,129):
     if i & (i - 1) == 0:
         size_list.append(i)
         random_list.append(random_count(i))

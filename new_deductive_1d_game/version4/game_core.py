@@ -36,8 +36,8 @@ _GAME_TYPE = pyspiel.GameType(
 
 class MurderGame(pyspiel.Game):
     def __init__(self, params=None, game_params: MurderParams = None) -> None:
-        game_params = game_params or MurderParams()
-        self.game_params = game_params
+        self.game_params = game_params or MurderParams()
+        self.all_info_states = list(itertools.product([0, 1], repeat=self.game_params.m_grid))[1:]
         n_actions = 2**game_params.m_grid
         game_info = pyspiel.GameInfo(
             num_distinct_actions=n_actions,
@@ -46,7 +46,7 @@ class MurderGame(pyspiel.Game):
             min_utility=-1.0,
             max_utility=1.0,
             utility_sum=0.0,
-            max_game_length=1000
+            max_game_length=10
         )
         super().__init__(_GAME_TYPE, game_info, params or dict())
 
@@ -133,7 +133,7 @@ class MurderState(pyspiel.State):
         if self.step > 0:
             map = [0]*self.params.m_grid
             map[self.people[0]] = 1
-            if self.init_actions[self.curr_action] == tuple(map):
+            if self.init_actions[self.curr_action] == tuple(map) or self.step > 10:
                 return True
             else:
                 return False
